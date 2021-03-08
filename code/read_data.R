@@ -14,19 +14,37 @@ readxl::excel_sheets(source)
 
 # Read the sheet name 
 df <- readxl::read_excel(source, "MSOA") %>% 
-  janitor::clean_names()
+  janitor::clean_names() 
 
 # Remove the first 9 rows
-df2 <- tail(df,-9) %>% rowid_to_column()
-head(df2, 10)
+df2 <- tail(df,-9)
+df2 <- df2[-c(3:4), ] %>%
+  rowid_to_column()
 
-df2 %>%
+df2$rowid[c(2)] <- 1
+
+df2 <- df2 %>%
   group_by(rowid) %>%
   summarise_all(na.omit)
+df2 <- df2 %>% janitor::row_to_names(row_number = 1)
+
+head(df2)
+df2 %>%
+  group_by(rowid) %>% 
+  summarise_all(funs(mean(as.character(.)))) 
+
+
+
+aggregate(cbind(1:12) ~ rowid, df2, mean,
+          na.action=na.pass, na.rm=TRUE)
+
+head(df3, 10)
+
+
 
 df2 %>%
   group_by(rowid) %>%
-  summarise_each(funs(sum(., na.rm = TRUE))) 
+  summarise_all(funs(sum(., na.rm = TRUE))) 
 
 setDT(df2)[, lapply(.SD, na.omit), by = rowid]
 
