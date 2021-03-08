@@ -17,19 +17,23 @@ df <- readxl::read_excel(source, "MSOA") %>%
   janitor::clean_names() 
 
 # Remove the first 9 rows
-df2 <- tail(df,-9)
+### df2 <- tail(df,-9)
+df2 <- slice(df, -(1:9))
+head(df)
 df3 <- df2[-c(3:4), ] %>%
   rowid_to_column()
 df3$rowid[c(2)] <- 1
 head(df3)
 
-df3 %>%
+df4 <- df3 %>%
   group_by(rowid) %>%
-  summarise_all(na.omit)
+  summarise_all(na.omit) %>% 
+  ungroup()
 
-df2 %>% 
+df4 %>% 
   janitor::row_to_names(row_number = 1) %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  select(-x1)
 
 head(df2)
 
