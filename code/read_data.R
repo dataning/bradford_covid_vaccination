@@ -16,8 +16,9 @@ readxl::excel_sheets(excel_source)
 df <- readxl::read_excel(source, "MSOA")
 
 # Remove the first 9 rows
-tail(df,-9)
+df <- tail(df,-9)
 
+head(df, 15)
 
 ##%######################################################%##
 #                                                          #
