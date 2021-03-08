@@ -20,6 +20,7 @@ df <- readxl::read_excel(source, "MSOA") %>%
 df2 <- tail(df,-9) %>% rowid_to_column()
 head(df2, 10)
 
+<<<<<<< HEAD
 df2 %>%
   group_by(rowid) %>%
   summarise_all(na.omit)
@@ -30,6 +31,9 @@ df2 %>%
 
 setDT(df2)[, lapply(.SD, na.omit), by = rowid]
 glimpse(df2)
+=======
+head(df3, 15)
+>>>>>>> 2a9204b0de0fa8146d487de7716021ddb843243b
 
 df2 %>% 
   summarise_all(funs(trimws(paste(., collapse = ''))))
