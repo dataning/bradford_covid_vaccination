@@ -10,16 +10,26 @@ pacman::p_load(tidyverse, data.table, here, readxl)
 source <- "data/COVID-19-weekly-announced-vaccinations-4-March-2021-1.xlsx"
 
 # Find all the sheet names
-readxl::excel_sheets(excel_source) 
+readxl::excel_sheets(source)
 
 # Read the sheet name 
-df <- readxl::read_excel(source, "MSOA")
+df <- readxl::read_excel(source, "MSOA") %>% 
+  janitor::clean_names()
 
 # Remove the first 9 rows
-df2 <- tail(df,-9) 
-janitor::row_to_names(row_number = 2)
+df2 <- tail(df,-9) %>% rowid_to_column()
+head(df2, 10)
 
-head(df2, 15)
+df2 %>%
+  group_by(rowid) %>%
+  summarise_all(na.omit)
+
+df2 %>%
+  group_by(rowid) %>%
+  summarise_each(funs(sum(., na.rm = TRUE))) 
+
+setDT(df2)[, lapply(.SD, na.omit), by = rowid]
+glimpse(df2)
 
 df2 %>% 
   summarise_all(funs(trimws(paste(., collapse = ''))))
@@ -28,8 +38,8 @@ aggregate(.~name, df2[-1], FUN=function(x) paste(x[x!=''], collapse=', '))
 
 sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)}
 
-df2 %>% 
-  summarise_all(sum_NA)
+df3 <- df2 %>% rowid_to_column()
+df3[, lapply(.SD, paste0, collapse=""), by=rowid]
 
 https://stackoverflow.com/questions/41068734/r-collapse-multiple-rows-into-1-row-same-columns
 
