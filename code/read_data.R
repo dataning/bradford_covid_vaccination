@@ -18,22 +18,21 @@ df <- readxl::read_excel(source, "MSOA") %>%
 
 # Remove the first 9 rows
 df2 <- tail(df,-9)
-df2 <- df2[-c(3:4), ] %>%
+df3 <- df2[-c(3:4), ] %>%
   rowid_to_column()
+df3$rowid[c(2)] <- 1
+head(df3)
 
-df2$rowid[c(2)] <- 1
-
-df2 <- df2 %>%
+df3 %>%
   group_by(rowid) %>%
   summarise_all(na.omit)
-df2 <- df2 %>% 
+
+df2 %>% 
   janitor::row_to_names(row_number = 1) %>% 
   janitor::clean_names()
 
 head(df2)
-df2 %>%
-  group_by(rowid) %>% 
-  summarise_all(funs(mean(as.character(.)))) 
+
 
 
 
