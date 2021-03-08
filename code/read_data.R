@@ -16,9 +16,22 @@ readxl::excel_sheets(excel_source)
 df <- readxl::read_excel(source, "MSOA")
 
 # Remove the first 9 rows
-df <- tail(df,-9)
+df2 <- tail(df,-9) 
+janitor::row_to_names(row_number = 2)
 
-head(df, 15)
+head(df2, 15)
+
+df2 %>% 
+  summarise_all(funs(trimws(paste(., collapse = ''))))
+
+aggregate(.~name, df2[-1], FUN=function(x) paste(x[x!=''], collapse=', '))
+
+sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)}
+
+df2 %>% 
+  summarise_all(sum_NA)
+
+https://stackoverflow.com/questions/41068734/r-collapse-multiple-rows-into-1-row-same-columns
 
 ##%######################################################%##
 #                                                          #
