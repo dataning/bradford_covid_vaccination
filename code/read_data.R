@@ -26,7 +26,9 @@ df2$rowid[c(2)] <- 1
 df2 <- df2 %>%
   group_by(rowid) %>%
   summarise_all(na.omit)
-df2 <- df2 %>% janitor::row_to_names(row_number = 1)
+df2 <- df2 %>% 
+  janitor::row_to_names(row_number = 1) %>% 
+  janitor::clean_names()
 
 head(df2)
 df2 %>%
