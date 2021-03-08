@@ -1,5 +1,30 @@
+pacman::p_load(tidyverse, data.table, here, readxl)
 
-excel_source <- "data/COVID-19-weekly-announced-vaccinations-4-March-2021-1.xlsx"
+##%######################################################%##
+#                                                          #
+####                   Load one file                    ####
+#                                                          #
+##%######################################################%##
+
+# Fix the location
+source <- "data/COVID-19-weekly-announced-vaccinations-4-March-2021-1.xlsx"
+
+# Find all the sheet names
+readxl::excel_sheets(excel_source) 
+
+# Read the sheet name 
+df <- readxl::read_excel(source, "MSOA")
+
+# Remove the first 9 rows
+tail(df,-9)
+
+
+##%######################################################%##
+#                                                          #
+####                 Try to load bunch                  ####
+#                                                          #
+##%######################################################%##
+
 excel_sheets <- readxl::excel_sheets(excel_source) 
 print(excel_sheets)
 

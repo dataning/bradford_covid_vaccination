@@ -10,7 +10,7 @@ usethis::use_github()
 
 wflow_start(here(), existing = TRUE)
 
-usethis::edit_file('code/spatio_reasons.R')
+usethis::edit_file('code/read_data.R')
 
 wflow_build()
 
@@ -28,7 +28,7 @@ wflow_publish(c("analysis/index.Rmd",
 
 wflow_open("analysis/data_job_findajob.Rmd")
 
-usethis::edit_file('code/mexico.R')
+usethis::edit_file('code/get_vaccination.R')
 
 wflow_build()
 
