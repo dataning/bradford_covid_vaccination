@@ -32,12 +32,15 @@ Mypal <- c('#000000','#14213d','#fca311','#d90429') # Black
 Mypal <- c('#000000','#fca311','#e5383b','#e71d36')
 Mypal <- c('#000000','#fca311','#bf0603','#8d0801')
 
-tm_shape(msoa_map) +
-  tm_polygons("rate", style ="cont", palette = "-inferno", n = 4,
+p1 <- tm_shape(msoa_map) +
+  tm_polygons("rate", style ="cont", palette = "-inferno", n = 5,
               border.alpha = 0) +
   tm_text("msoa_names", remove.overlap = TRUE, size = 0.8) + 
   tm_layout(legend.outside = TRUE, 
             frame = FALSE, frame.lwd = NA, panel.label.bg.color = NA)
+
+tmap_save(p1, "bradford_vaccine_dec_feb.png", width = 1280, height = 915, asp = 0)
+
 
 tm_shape(msoa_map) +
   tm_polygons("rate_65_69", style ="cont", palette = "-inferno",
