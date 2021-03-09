@@ -32,12 +32,10 @@ df2 <- df %>%
   slice(-1) %>% 
   rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose) 
 
-df2$one_dose <- as.integer(df2$one_dose)
-%>% 
-  select(msoa_code, msoa_name, one_dose)
+df2[7:11] <- df2[7:11] %>% mutate_if(is.character, as.numeric)
+df2 %>% arrange(one_dose)
 
 saveRDS(df2, "data/vacc_Dec08_Feb28.rds")
-head(df2, 10)
 
 # Modify value
 ### df2$rowid[c(2)] <- 1
@@ -69,6 +67,8 @@ df_excel <- df_excel %>% janitor::clean_names()
 df_excel[7:98] <- df_excel[7:98] %>% mutate_if(is.character, as.numeric)
 saveRDS(df_excel, "data/msoa_pop_weight.rds")
 
+df_excel %>% arrange(all_ages)
+
 ##%######################################################%##
 #                                                          #
 ####          Combine dosed pop and local pop           ####
@@ -76,6 +76,11 @@ saveRDS(df_excel, "data/msoa_pop_weight.rds")
 ##%######################################################%##
 
 glimpse(df2)
+
+
+%>% 
+  select(msoa_code, msoa_name, one_dose)
+
 
 df <- readRDS("data/vacc_Dec08_Feb28.rds") %>% 
   rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose) %>% 
