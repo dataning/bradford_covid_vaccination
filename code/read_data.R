@@ -30,9 +30,12 @@ df2 <- df %>%
   ungroup() %>% 
   select(-x1) %>% 
   slice(-1) %>% 
-  rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose) 
+  rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose,
+         msoa_names = msoa_name) 
 
-df2[7:11] <- df2[7:11] %>% mutate_if(is.character, as.numeric)
+colnames(df2) <- sub("x", "dosed_", colnames(df2))
+df2[7:11] <- df2[7:11] %>% mutate_if(is.character, as.numeric) 
+
 df2 %>% arrange(one_dose)
 
 saveRDS(df2, "data/vacc_Dec08_Feb28.rds")
@@ -77,17 +80,8 @@ df_excel %>% arrange(all_ages)
 
 glimpse(df2)
 
-
-%>% 
-  select(msoa_code, msoa_name, one_dose)
-
-
-df <- readRDS("data/vacc_Dec08_Feb28.rds") %>% 
-  rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose) %>% 
-  select(msoa_code, msoa_name, one_dose)
-
-df2 <- df2 %>% left_join(df_excel, by = "msoa_code") %>% 
+df3 <- df2 %>% 
+  left_join(df_excel) %>% 
   mutate(rate = one_dose/all_ages)
 
-glimpse(df2)
-
+saveRDS(df3, "data/msoa_vacc_dec_feb.rds")
