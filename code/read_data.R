@@ -82,6 +82,13 @@ glimpse(df2)
 
 df3 <- df2 %>% 
   left_join(df_excel) %>% 
-  mutate(rate = one_dose/all_ages)
+  mutate(rate = one_dose/all_ages) %>% 
+  rowwise() %>% 
+  mutate(rate_65_69 = dosed_65_69/sum(c(age_65:age_69)),
+         rate_70_74 = dosed_70_74/sum(c(age_70:age_74)),
+         rate_75_79 = dosed_75_79/sum(c(age_75:age_79)),
+         rate_80 = dosed_80/sum(c(age_80:age_90)))
+
+glimpse(df3)
 
 saveRDS(df3, "data/msoa_vacc_dec_feb.rds")
