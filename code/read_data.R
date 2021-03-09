@@ -18,11 +18,11 @@ df <- readxl::read_excel(source, "MSOA") %>%
 
 # Remove the first 9 rows
 ### df2 <- tail(df,-9)
-df2 <- slice(df, -(1:9))
-
-head(df)
-df3 <- df2[-c(3:4), ] %>%
+df2 <- df %>% 
+  slice(-c(1:9, 11, 13)) %>% 
   rowid_to_column()
+
+head(df2, 20)
 
 df3$rowid[c(2)] <- 1
 head(df3)
