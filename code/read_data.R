@@ -2,7 +2,7 @@ pacman::p_load(tidyverse, data.table, here, readxl)
 
 ##%######################################################%##
 #                                                          #
-####                   Load one file                    ####
+####                Get vaccination data                ####
 #                                                          #
 ##%######################################################%##
 
@@ -31,7 +31,7 @@ df2 <- df %>%
   select(-x1) %>% 
   slice(-1)
 
-saveRDS(df2, "vacc_Dec08_Feb28.rds")
+saveRDS(df2, "data/vacc_Dec08_Feb28.rds")
 head(df2, 10)
 
 # Modify value
@@ -40,78 +40,24 @@ head(df2, 10)
 # Remove the first 9 rows
 ### df2 <- tail(df,-9)
 
-
-aggregate(cbind(1:12) ~ rowid, df2, mean,
-          na.action=na.pass, na.rm=TRUE)
-df2 %>%
-  group_by(rowid) %>%
-  summarise_all(funs(sum(., na.rm = TRUE))) 
-
-setDT(df2)[, lapply(.SD, na.omit), by = rowid]
-
-
-df2 %>% 
-  summarise_all(funs(trimws(paste(., collapse = ''))))
-
-aggregate(.~name, df2[-1], FUN=function(x) paste(x[x!=''], collapse=', '))
-
-sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)}
-
-df3 <- df2 %>% rowid_to_column()
-df3[, lapply(.SD, paste0, collapse=""), by=rowid]
-
-https://stackoverflow.com/questions/41068734/r-collapse-multiple-rows-into-1-row-same-columns
-
 ##%######################################################%##
 #                                                          #
-####                 Try to load bunch                  ####
+####            Get local population weight             ####
 #                                                          #
 ##%######################################################%##
 
-excel_sheets <- readxl::excel_sheets(excel_source) 
-print(excel_sheets)
+df_excel <- readxl::read_excel(source, "Mid-2019 Persons") %>% 
+  janitor::clean_names() %>% 
+  slice(-c(1:3)) %>% 
+  janitor::row_to_names(row_number = 1) 
 
-files_to_read <- list.files(
-  path = here::here("data"),        # directory to search within
-  pattern = ".*xlsx$", # regex pattern, some explanation below
-  recursive = TRUE,          # search subdirectories
-  full.names = TRUE          # return the full path
-)
+colnames(df_excel)[8:98] <- paste("age", colnames(df2)[8:98], sep = "_")
+df_excel <- df_excel %>% janitor::clean_names()
+df_excel$all_ages <- as.integer(df_excel$all_ages)
 
-read_vaccination <- function(x) {
-  
-  files_to_read <- list.files(
-    path = here::here("data"),        # directory to search within
-    pattern = ".*xlsx$", # regex pattern, some explanation below
-    recursive = TRUE,          # search subdirectories
-    full.names = TRUE          # return the full path
-  )
-  
-  read_data <- function(z){
-    dat <- readxl::read_xlsx(z, sheet = MSOA)
-  }
-  
-  data.table::rbindlist(lapply(files_to_read, read_data))
-  
-}
+df2 <- df %>% left_join(df_excel, by = "msoa_code") %>% 
+  mutate(rate = one_dose/all_ages)
 
-df <- read_vaccination()
+glimpse(df2)
 
-
-read_data <- function(z){
-  dat <- data.table::fread(z, select = c(x), fill=TRUE)
-}
-
-files_to_read %>%
-  purrr::map(function(sheet){ # iterate through each sheet name
-    readxl::read_xlsx(path = excel_source, sheet = "MSOA")
-  })
-
-wb_sheets %>%
-  purrr::map(function(sheet){ # iterate through each sheet name
-    assign(x = sheet,
-           value = readxl::read_xlsx(path = wb_source, sheet = sheet),
-           envir = .GlobalEnv)
-  })
-
-data.table::rbindlist(lapply(files_to_read, read_data))
+saveRDS(df_excel, "data/msoa_pop_weight.rds")
