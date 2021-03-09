@@ -37,6 +37,7 @@ colnames(df2) <- sub("x", "dosed_", colnames(df2))
 df2[7:11] <- df2[7:11] %>% mutate_if(is.character, as.numeric) 
 
 df2 %>% arrange(one_dose)
+glimpse(df2)
 
 saveRDS(df2, "data/vacc_Dec08_Feb28.rds")
 
@@ -71,6 +72,7 @@ df_excel[7:98] <- df_excel[7:98] %>% mutate_if(is.character, as.numeric)
 saveRDS(df_excel, "data/msoa_pop_weight.rds")
 
 df_excel %>% arrange(all_ages)
+glimpse(df_excel)
 
 ##%######################################################%##
 #                                                          #
@@ -80,15 +82,20 @@ df_excel %>% arrange(all_ages)
 
 glimpse(df2)
 
+grep("age_70", colnames(df_excel))
+grep("age_79", colnames(df_excel))
+
 df3 <- df2 %>% 
   left_join(df_excel) %>% 
   mutate(rate = one_dose/all_ages) %>% 
   rowwise() %>% 
-  mutate(rate_65_69 = dosed_65_69/sum(c(age_65:age_69)),
-         rate_70_74 = dosed_70_74/sum(c(age_70:age_74)),
-         rate_75_79 = dosed_75_79/sum(c(age_75:age_79)),
-         rate_80 = dosed_80/sum(c(age_80:age_90)))
+  mutate(rate_65_69 = dosed_65_69/sum(c(73:77)),
+         rate_70_74 = dosed_70_74/sum(c(78:82)),
+         rate_75_79 = dosed_75_79/sum(c(83:87)),
+         rate_80 = dosed_80/sum(c(88:98)))
 
 glimpse(df3)
+
+esquisse::esquisser()
 
 saveRDS(df3, "data/msoa_vacc_dec_feb.rds")
