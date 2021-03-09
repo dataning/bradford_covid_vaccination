@@ -16,39 +16,28 @@ readxl::excel_sheets(source)
 df <- readxl::read_excel(source, "MSOA") %>% 
   janitor::clean_names() 
 
-# Remove the first 9 rows
-### df2 <- tail(df,-9)
+# Clean excel headers
 df2 <- df %>% 
-  slice(-c(1:9, 11, 13)) %>% 
-  rowid_to_column()
-
-head(df2, 20)
-
-df3$rowid[c(2)] <- 1
-head(df3)
-
-df4 <- df3 %>%
+  slice(-c(1:9, 12:13)) %>% 
+  rowid_to_column() %>% 
+  mutate(rowid = sub("2", "1", rowid)) %>% 
   group_by(rowid) %>%
   summarise_all(na.omit) %>% 
-  ungroup()
-
-df4 %>% 
   janitor::row_to_names(row_number = 1) %>% 
   janitor::clean_names() %>% 
-  select(-x1)
+  ungroup() %>% 
+  select(-x1) %>% 
+  slice(-1)
 
-head(df2)
+# Modify value
+### df2$rowid[c(2)] <- 1
 
-
+# Remove the first 9 rows
+### df2 <- tail(df,-9)
 
 
 aggregate(cbind(1:12) ~ rowid, df2, mean,
           na.action=na.pass, na.rm=TRUE)
-
-head(df3, 10)
-
-
-
 df2 %>%
   group_by(rowid) %>%
   summarise_all(funs(sum(., na.rm = TRUE))) 
