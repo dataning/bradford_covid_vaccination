@@ -16,6 +16,8 @@ readxl::excel_sheets(source)
 df <- readxl::read_excel(source, "MSOA") %>% 
   janitor::clean_names() 
 
+head(df, 15)
+
 # Clean excel headers
 df2 <- df %>% 
   slice(-c(1:9, 12:13)) %>% 
@@ -28,6 +30,9 @@ df2 <- df %>%
   ungroup() %>% 
   select(-x1) %>% 
   slice(-1)
+
+saveRDS(df2, "vacc_Dec08_Feb28.rds")
+head(df2, 10)
 
 # Modify value
 ### df2$rowid[c(2)] <- 1
