@@ -32,13 +32,12 @@ Mypal <- c('#000000','#14213d','#fca311','#d90429') # Black
 Mypal <- c('#000000','#fca311','#e5383b','#e71d36')
 Mypal <- c('#000000','#fca311','#bf0603','#8d0801')
 
-p1 <- tm_shape(msoa_map) +
+tm_shape(msoa_map) +
   tm_polygons("rate", style ="cont", palette = "-inferno", n = 5,
               border.alpha = 0, 
-              title = "Bradford Vaccination Rate by MSOA",
-              legend.title.size = 0.5) +
+              title = "Bradford Vaccination Rate by MSOA") +
   tm_style("cobalt") + 
-  tm_text("msoa_names", remove.overlap = TRUE, size = 0.2) + 
+  tm_text("msoa_names", remove.overlap = TRUE, size = 0.8) + 
   tm_layout(legend.outside = TRUE, 
             frame = FALSE, frame.lwd = NA)
 
