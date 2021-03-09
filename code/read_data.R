@@ -29,7 +29,12 @@ df2 <- df %>%
   janitor::clean_names() %>% 
   ungroup() %>% 
   select(-x1) %>% 
-  slice(-1)
+  slice(-1) %>% 
+  rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose) 
+
+df2$one_dose <- as.integer(df2$one_dose)
+%>% 
+  select(msoa_code, msoa_name, one_dose)
 
 saveRDS(df2, "data/vacc_Dec08_Feb28.rds")
 head(df2, 10)
@@ -46,18 +51,38 @@ head(df2, 10)
 #                                                          #
 ##%######################################################%##
 
+# Fix the location
+source <- "/Users/goal/Downloads/temp_data/msoa_population_weight_2019.xlsx"
+
+# Find all the sheet names
+readxl::excel_sheets(source)
+
 df_excel <- readxl::read_excel(source, "Mid-2019 Persons") %>% 
   janitor::clean_names() %>% 
   slice(-c(1:3)) %>% 
   janitor::row_to_names(row_number = 1) 
 
-colnames(df_excel)[8:98] <- paste("age", colnames(df2)[8:98], sep = "_")
-df_excel <- df_excel %>% janitor::clean_names()
-df_excel$all_ages <- as.integer(df_excel$all_ages)
+glimpse(df_excel)
 
-df2 <- df %>% left_join(df_excel, by = "msoa_code") %>% 
+colnames(df_excel)[8:98] <- paste("age", colnames(df_excel)[8:98], sep = "_")
+df_excel <- df_excel %>% janitor::clean_names()
+df_excel[7:98] <- df_excel[7:98] %>% mutate_if(is.character, as.numeric)
+saveRDS(df_excel, "data/msoa_pop_weight.rds")
+
+##%######################################################%##
+#                                                          #
+####          Combine dosed pop and local pop           ####
+#                                                          #
+##%######################################################%##
+
+glimpse(df2)
+
+df <- readRDS("data/vacc_Dec08_Feb28.rds") %>% 
+  rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose) %>% 
+  select(msoa_code, msoa_name, one_dose)
+
+df2 <- df2 %>% left_join(df_excel, by = "msoa_code") %>% 
   mutate(rate = one_dose/all_ages)
 
 glimpse(df2)
 
-saveRDS(df_excel, "data/msoa_pop_weight.rds")
