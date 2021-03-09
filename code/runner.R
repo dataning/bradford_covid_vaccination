@@ -10,7 +10,7 @@ usethis::use_github()
 
 wflow_start(here(), existing = TRUE)
 
-usethis::edit_file('code/read_data.R')
+usethis::edit_file('code/map.R')
 
 wflow_build()
 
