@@ -7,7 +7,7 @@ get_spreadsheets <- function(url){
            html_attr("href") %>%
            str_subset("COVID-19-weekly") %>% 
            str_subset("\\.xls") %>%  # find those that end in xls/xlsx
-           map(., ~ download(.x, destfile = file.path("data", basename(.x))))  # download them with their file name
+           map(., ~ download.file(.x, destfile = file.path("data", basename(.x))))  # download them with their file name
 }
 
 link <- "https://www.england.nhs.uk/statistics/statistical-work-areas/covid-19-vaccinations/"
