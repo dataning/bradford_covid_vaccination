@@ -1,4 +1,5 @@
 pacman::p_load(tidyverse, data.table, here, readxl, janitor)
+
 https://dominicroye.github.io/en/2019/import-excel-sheets-with-r/
   
 ##%######################################################%##
@@ -7,14 +8,17 @@ https://dominicroye.github.io/en/2019/import-excel-sheets-with-r/
 #                                                          #
 ##%######################################################%##
 
-sheets_to_keep <- "MSOA"
-
+# Get all the expected spreadsheets in the folder
 files_to_read_new <- list.files(
   path = here("data"),        # directory to search within
   pattern = "*March.*xlsx$", # regex pattern, some explanation below
   recursive = TRUE,          # search subdirectories
   full.names = TRUE          # return the full path
 )
+
+# Get spreadsheet name 
+sheets_to_keep <- "MSOA"
+
 
 df <- map(files_to_read_new, function(x){  
   raw_data <- map_df(sheets_to_keep, ~ read_excel(x, sheet = .x))})
