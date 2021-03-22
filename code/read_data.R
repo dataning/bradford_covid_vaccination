@@ -1,4 +1,4 @@
-pacman::p_load(tidyverse, data.table, here, readxl)
+pacman::p_load(tidyverse, data.table, here, readxl, janitor)
 https://dominicroye.github.io/en/2019/import-excel-sheets-with-r/
   
 ##%######################################################%##
@@ -17,10 +17,51 @@ files_to_read_new <- list.files(
 )
 
 df <- map(files_to_read_new, function(x){  
-  raw_data <- map(sheets_to_keep, ~ read_excel(x, sheet = .x))})
+  raw_data <- map_df(sheets_to_keep, ~ read_excel(x, sheet = .x))})
 
 
 
+df_list <- list(mtcars, iris, mtcars)
+names(df_list) = c("mtcars1", "iris1", "mtcars2")
+dput(head(df_list))
+head(df_list)
+glimpse(df)
+df
+names(df) = gsub("COVID-19-weekly-announced-vaccinations-", "", basename(files_to_read_new))
+df %>% 
+  map(slice, -c(1:9, 12:13)) %>% 
+  map(~rowid_to_column(.x, "id")) %>% 
+  map(~mutate(.x, id = sub("2", "1", id))) %>% 
+  map(~group_by(.x, id)) %>% 
+  map(~summarise_all(.x, na.omit)) %>% 
+  map(~row_to_names(.x, row_number = 1)) %>% 
+  map(~clean_names(.x)) %>%
+  map(~ungroup(.x)) %>% 
+  map(~select(.x, -x1)) %>% 
+  map(~slice(.x, -1)) %>% 
+  map(~rename(.x, one_dose = number_of_people_vaccinated_with_at_least_1_dose, 
+              msoa_names = msoa_name))
+  
+
+
+  map(~mutate(.x, x1 = as.integer(x1))) %>% 
+  map(~arrange(.x, x1))
+  
+  
+
+df2 <- df %>% 
+  slice(-c(1:9, 12:13)) %>% 
+  rowid_to_column() %>% 
+  mutate(rowid = sub("2", "1", rowid)) %>% 
+  group_by(rowid) %>%
+  summarise_all(na.omit) %>% 
+  janitor::row_to_names(row_number = 1) %>% 
+  janitor::clean_names() %>% 
+  ungroup() %>% 
+  select(-x1) %>% 
+  slice(-1) %>% 
+  rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose,
+         msoa_names = msoa_name) 
 
 df <- map_df(files_to_read_new, function(x){  
   raw_data <- map_df(sheets_to_keep, ~read_excel(x, sheet = .x)) 
