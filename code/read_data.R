@@ -28,6 +28,7 @@ sheets_to_keep <- "MSOA"
 # Load all the MSOA sheet into one list
 df_list <- map(files_to_read_new, function(x){  
   raw_data <- map_df(sheets_to_keep, ~ read_excel(x, sheet = .x))})
+df_list
 
 # Name the dataframes on the list
 names(df_list) = gsub("COVID-19-weekly-announced-vaccinations-", "", basename(files_to_read_new))
@@ -139,10 +140,10 @@ naniar::gg_miss_var(df)
 
 # Cleaning NA value
 df$dosed_55_59 <- gsub("NA", "0", df$dosed_55_59)
-df$dosed_55_59 <- gsub("NA", "0", df$dosed_55_59)
+df$dosed_60_64 <- gsub("NA", "0", df$dosed_60_64)
 df[1:6] <- df[1:6] %>% mutate_if(is.character, as.integer)
 
-glimpse(df2)
+glimpse(df)
 
 grep("age_70", colnames(df_excel))
 grep("age_79", colnames(df_excel))
