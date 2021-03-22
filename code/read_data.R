@@ -86,12 +86,17 @@ df_list <- Map(cbind, df_list, souce = names(df_list))
 df <- rbindlist(df_list, fill=TRUE)
 View(df)
 glimpse(df)
-saveRDS(df, "data/vacc_msoa.rds")
 
 # Clean column names
 colnames(df) <- sub("x", "dosed_", colnames(df))
 df <- df %>%  select(sort(names(.))) 
+saveRDS(df, "data/vacc_msoa.rds")
+
+
+naniar::gg_miss_var(df)
 df$dosed_55_59 <- gsub("NA", "0", df$dosed_55_59)
+df$dosed_55_59 <- gsub("NA", "0", df$dosed_55_59)
+
 df[1:6] <- df[1:6] %>% mutate_if(is.character, as.integer)
 
 # Modify value
