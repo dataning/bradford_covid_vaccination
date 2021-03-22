@@ -84,10 +84,13 @@ df_list <- Map(cbind, df_list, souce = names(df_list))
 df <- rbindlist(df_list, fill=TRUE)
 View(df)
 glimpse(df)
-colnames(df)
 
+# colnames(df)
 colnames(df) <- sub("x", "dosed_", colnames(df))
-df <- df %>%  select(sort(names(.))) 
+
+# Reorder column names
+df <- df %>% select(sort(names(.))) 
+
 saveRDS(df, "data/vacc_msoa.rds")
 
 # Modify value
@@ -95,6 +98,17 @@ saveRDS(df, "data/vacc_msoa.rds")
 
 # Remove the first 9 rows
 ### df2 <- tail(df,-9)
+
+
+df <- readRDS("data/vacc_msoa.rds")
+
+naniar::gg_miss_var(df)
+
+# Cleaning NA value
+df$dosed_55_59 <- gsub("NA", "0", df$dosed_55_59)
+df$dosed_60_64 <- gsub("NA", "0", df$dosed_60_64)
+df[1:6] <- df[1:6] %>% mutate_if(is.character, as.integer)
+
 
 ##%######################################################%##
 #                                                          #
@@ -130,15 +144,6 @@ glimpse(df_excel)
 ####          Combine dosed pop and local pop           ####
 #                                                          #
 ##%######################################################%##
-
-df <- readRDS("data/vacc_msoa.rds")
-
-naniar::gg_miss_var(df)
-
-# Cleaning NA value
-df$dosed_55_59 <- gsub("NA", "0", df$dosed_55_59)
-df$dosed_60_64 <- gsub("NA", "0", df$dosed_60_64)
-df[1:6] <- df[1:6] %>% mutate_if(is.character, as.integer)
 
 glimpse(df)
 
