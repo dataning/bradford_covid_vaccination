@@ -1,22 +1,92 @@
 pacman::p_load(tidyverse, data.table, here, readxl)
-
+https://dominicroye.github.io/en/2019/import-excel-sheets-with-r/
+  
 ##%######################################################%##
 #                                                          #
 ####                Get vaccination data                ####
 #                                                          #
 ##%######################################################%##
 
-# Fix the location
-source <- "data/COVID-19-weekly-announced-vaccinations-4-March-2021-1.xlsx"
+sheets_to_keep <- "MSOA"
 
-# Find all the sheet names
-readxl::excel_sheets(source)
+files_to_read_new <- list.files(
+  path = here("data"),        # directory to search within
+  pattern = "*March.*xlsx$", # regex pattern, some explanation below
+  recursive = TRUE,          # search subdirectories
+  full.names = TRUE          # return the full path
+)
 
-# Read the sheet name 
-df <- readxl::read_excel(source, "MSOA") %>% 
+df <- map(files_to_read_new, function(x){  
+  raw_data <- map(sheets_to_keep, ~ read_excel(x, sheet = .x))})
+
+
+
+
+df <- map_df(files_to_read_new, function(x){  
+  raw_data <- map_df(sheets_to_keep, ~read_excel(x, sheet = .x)) 
+  return(raw_data)})
+
+
+glimpse(df)
+
+df <- map(sheets_to_keep, ~ read_excel(files_to_read_new, sheet = .x))
+
+files_to_read_new
+
+read_multiple_excel <- function(path) {
+  path %>%
+    excel_sheets() %>% 
+    set_names() %>% 
+    map_df(read_excel, path = path, sheet = .x)
+}
+
+data_df <- files_to_read_new %>% 
+  map_df(read_multiple_excel, .id = "file")
+
+readxl::excel_sheets(files_to_read_new[1])
+
+View(data_df)
+
+
+
+
+df_20_21 <- rbindlist(lapply(files_to_read_new, fread)) %>% 
   janitor::clean_names() 
 
-head(df, 15)
+library(purrr)
+files_to_read_new <- setNames(files_to_read_new, files_to_read_new) # only needed when you need an id-column with the file-names
+files_to_read_new
+
+df <- map_df(files_to_read_new, read_excel)
+View(df)
+
+# Find all the sheet names
+files_to_read_new
+readxl::excel_sheets(files_to_read_new[1])
+readxl::excel_sheets(files_to_read_new[2])
+readxl::excel_sheets(files_to_read_new[3])
+
+# Read the sheet name 
+df_20_21 <- rbindlist(lapply(files_to_read_new, read_excel(files_to_read_new, "MSOA"))) %>% 
+  janitor::clean_names() 
+
+df1 <- read_excel(files_to_read_new[1], "MSOA") %>% 
+  janitor::clean_names() 
+
+get_excel <- function(){
+  read_excel(map(files_to_read_new), "MSOA") %>% 
+    janitor::clean_names() 
+}
+
+map(read_excel, "MSOA")
+
+cat <- list()
+cat <- get_excel()
+
+df2 <- read_excel(files_to_read_new[2], "MSOA") %>% 
+  janitor::clean_names() 
+
+head(df2, 15)
 
 # Clean excel headers
 df2 <- df %>% 
