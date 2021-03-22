@@ -32,8 +32,12 @@ df_list <- map(files_to_read_new, function(x){
 # Name the dataframes on the list
 names(df_list) = gsub("COVID-19-weekly-announced-vaccinations-", "", basename(files_to_read_new))
 
+df_list <- list(mtcars, iris, mtcars)
+names(df_list) = c("mtcars1", "iris1", "mtcars2")
+df_list
+
 # Cleaning all the dataframes on the list
-df_list %>% 
+df_list <- df_list %>% 
   map(slice, -c(1:9, 12:13)) %>% 
   map(~rowid_to_column(.x, "id")) %>% 
   map(~mutate(.x, id = sub("2", "1", id))) %>% 
@@ -46,52 +50,49 @@ df_list %>%
   map(~slice(.x, -1)) %>% 
   map(~rename(.x, one_dose = number_of_people_vaccinated_with_at_least_1_dose, 
               msoa_names = msoa_name))
-  
+
 ### map(~mutate(.x, x1 = as.integer(x1))) - convert column type
 ### map(~arrange(.x, x1)) - sort by column 
 ### df <- map_df(files_to_read_new, function(x){  
 ###   raw_data <- map_df(sheets_to_keep, ~read_excel(x, sheet = .x)) 
 ###   return(raw_data)})
 
+### read_multiple_excel <- function(path) {
+###   path %>%
+###     excel_sheets() %>% 
+###     set_names() %>% 
+###     map_df(read_excel, path = path, sheet = .x)
+### }
 
+### # Clean excel headers
+### df2 <- df %>% 
+###   slice(-c(1:9, 12:13)) %>% 
+###   rowid_to_column() %>% 
+###   mutate(rowid = sub("2", "1", rowid)) %>% 
+###   group_by(rowid) %>%
+###   summarise_all(na.omit) %>% 
+###   janitor::row_to_names(row_number = 1) %>% 
+###   janitor::clean_names() %>% 
+###   ungroup() %>% 
+###   select(-x1) %>% 
+###   slice(-1) %>% 
+###   rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose,
+###          msoa_names = msoa_name) 
+
+# Add a column of dataframe names
+df_list <- Map(cbind, df_list, souce = names(df_list))
+
+# Combine the list
+df <- rbindlist(df_list, fill=TRUE)
+View(df)
 glimpse(df)
+saveRDS(df, "data/vacc_msoa.rds")
 
-df <- map(sheets_to_keep, ~ read_excel(files_to_read_new, sheet = .x))
-
-files_to_read_new
-
-read_multiple_excel <- function(path) {
-  path %>%
-    excel_sheets() %>% 
-    set_names() %>% 
-    map_df(read_excel, path = path, sheet = .x)
-}
-
-data_df <- files_to_read_new %>% 
-  map_df(read_multiple_excel, .id = "file")
-
-# Clean excel headers
-df2 <- df %>% 
-  slice(-c(1:9, 12:13)) %>% 
-  rowid_to_column() %>% 
-  mutate(rowid = sub("2", "1", rowid)) %>% 
-  group_by(rowid) %>%
-  summarise_all(na.omit) %>% 
-  janitor::row_to_names(row_number = 1) %>% 
-  janitor::clean_names() %>% 
-  ungroup() %>% 
-  select(-x1) %>% 
-  slice(-1) %>% 
-  rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose,
-         msoa_names = msoa_name) 
-
-colnames(df2) <- sub("x", "dosed_", colnames(df2))
-df2[7:11] <- df2[7:11] %>% mutate_if(is.character, as.numeric) 
-
-df2 %>% arrange(one_dose)
-glimpse(df2)
-
-saveRDS(df2, "data/vacc_Dec08_Feb28.rds")
+# Clean column names
+colnames(df) <- sub("x", "dosed_", colnames(df))
+df <- df %>%  select(sort(names(.))) 
+df$dosed_55_59 <- gsub("NA", "0", df$dosed_55_59)
+df[1:6] <- df[1:6] %>% mutate_if(is.character, as.integer)
 
 # Modify value
 ### df2$rowid[c(2)] <- 1
