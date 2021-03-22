@@ -32,13 +32,8 @@ df_list <- map(files_to_read_new, function(x){
 # Name the dataframes on the list
 names(df_list) = gsub("COVID-19-weekly-announced-vaccinations-", "", basename(files_to_read_new))
 
-df_list <- list(mtcars, iris, mtcars)
-names(df_list) = c("mtcars1", "iris1", "mtcars2")
-dput(head(df_list))
-head(df_list)
-glimpse(df)
-df
-df %>% 
+# Cleaning all the dataframes on the list
+df_list %>% 
   map(slice, -c(1:9, 12:13)) %>% 
   map(~rowid_to_column(.x, "id")) %>% 
   map(~mutate(.x, id = sub("2", "1", id))) %>% 
@@ -52,30 +47,11 @@ df %>%
   map(~rename(.x, one_dose = number_of_people_vaccinated_with_at_least_1_dose, 
               msoa_names = msoa_name))
   
-
-
-  map(~mutate(.x, x1 = as.integer(x1))) %>% 
-  map(~arrange(.x, x1))
-  
-  
-
-df2 <- df %>% 
-  slice(-c(1:9, 12:13)) %>% 
-  rowid_to_column() %>% 
-  mutate(rowid = sub("2", "1", rowid)) %>% 
-  group_by(rowid) %>%
-  summarise_all(na.omit) %>% 
-  janitor::row_to_names(row_number = 1) %>% 
-  janitor::clean_names() %>% 
-  ungroup() %>% 
-  select(-x1) %>% 
-  slice(-1) %>% 
-  rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose,
-         msoa_names = msoa_name) 
-
-df <- map_df(files_to_read_new, function(x){  
-  raw_data <- map_df(sheets_to_keep, ~read_excel(x, sheet = .x)) 
-  return(raw_data)})
+### map(~mutate(.x, x1 = as.integer(x1))) - convert column type
+### map(~arrange(.x, x1)) - sort by column 
+### df <- map_df(files_to_read_new, function(x){  
+###   raw_data <- map_df(sheets_to_keep, ~read_excel(x, sheet = .x)) 
+###   return(raw_data)})
 
 
 glimpse(df)
@@ -93,51 +69,6 @@ read_multiple_excel <- function(path) {
 
 data_df <- files_to_read_new %>% 
   map_df(read_multiple_excel, .id = "file")
-
-readxl::excel_sheets(files_to_read_new[1])
-
-View(data_df)
-
-
-
-
-df_20_21 <- rbindlist(lapply(files_to_read_new, fread)) %>% 
-  janitor::clean_names() 
-
-library(purrr)
-files_to_read_new <- setNames(files_to_read_new, files_to_read_new) # only needed when you need an id-column with the file-names
-files_to_read_new
-
-df <- map_df(files_to_read_new, read_excel)
-View(df)
-
-# Find all the sheet names
-files_to_read_new
-readxl::excel_sheets(files_to_read_new[1])
-readxl::excel_sheets(files_to_read_new[2])
-readxl::excel_sheets(files_to_read_new[3])
-
-# Read the sheet name 
-df_20_21 <- rbindlist(lapply(files_to_read_new, read_excel(files_to_read_new, "MSOA"))) %>% 
-  janitor::clean_names() 
-
-df1 <- read_excel(files_to_read_new[1], "MSOA") %>% 
-  janitor::clean_names() 
-
-get_excel <- function(){
-  read_excel(map(files_to_read_new), "MSOA") %>% 
-    janitor::clean_names() 
-}
-
-map(read_excel, "MSOA")
-
-cat <- list()
-cat <- get_excel()
-
-df2 <- read_excel(files_to_read_new[2], "MSOA") %>% 
-  janitor::clean_names() 
-
-head(df2, 15)
 
 # Clean excel headers
 df2 <- df %>% 
