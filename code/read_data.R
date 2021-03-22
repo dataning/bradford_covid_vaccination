@@ -16,14 +16,21 @@ files_to_read_new <- list.files(
   full.names = TRUE          # return the full path
 )
 
+files_to_read_new
+
 # Get spreadsheet name 
+excel_sheets(files_to_read_new[1])
+excel_sheets(files_to_read_new[1])
+excel_sheets(files_to_read_new[1])
+
 sheets_to_keep <- "MSOA"
 
-
-df <- map(files_to_read_new, function(x){  
+# Load all the MSOA sheet into one list
+df_list <- map(files_to_read_new, function(x){  
   raw_data <- map_df(sheets_to_keep, ~ read_excel(x, sheet = .x))})
 
-
+# Name the dataframes on the list
+names(df_list) = gsub("COVID-19-weekly-announced-vaccinations-", "", basename(files_to_read_new))
 
 df_list <- list(mtcars, iris, mtcars)
 names(df_list) = c("mtcars1", "iris1", "mtcars2")
@@ -31,7 +38,6 @@ dput(head(df_list))
 head(df_list)
 glimpse(df)
 df
-names(df) = gsub("COVID-19-weekly-announced-vaccinations-", "", basename(files_to_read_new))
 df %>% 
   map(slice, -c(1:9, 12:13)) %>% 
   map(~rowid_to_column(.x, "id")) %>% 
