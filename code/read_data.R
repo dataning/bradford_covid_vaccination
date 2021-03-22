@@ -91,24 +91,36 @@ colnames(df) <- sub("x", "dosed_", colnames(df))
 # Reorder column names
 df <- df %>% select(sort(names(.))) 
 
-saveRDS(df, "data/vacc_msoa.rds")
-
 # Modify value
 ### df2$rowid[c(2)] <- 1
 
 # Remove the first 9 rows
 ### df2 <- tail(df,-9)
 
+# Cleaning NA value
+naniar::gg_miss_case_cumsum(df)
 
+df <- df %>% 
+  replace_na(list(dosed_55_59 = 0, dosed_60_64 = 0)) %>% 
+  mutate(across(c(1:5), as.integer))
+
+saveRDS(df, "data/vacc_msoa.rds")
 df <- readRDS("data/vacc_msoa.rds")
 
-naniar::gg_miss_var(df)
-
-# Cleaning NA value
-df$dosed_55_59 <- gsub("NA", "0", df$dosed_55_59)
-df$dosed_60_64 <- gsub("NA", "0", df$dosed_60_64)
-df[1:6] <- df[1:6] %>% mutate_if(is.character, as.integer)
-
+### glimpse(df)
+### df$dosed_55_59[is.na(df$dosed_55_59)] <- 0
+### df$dosed_60_64[is.na(df$dosed_60_64)] <- 0
+### 
+### df <- df %>% 
+###   replace_na(list(dosed_55_59 = 0, dosed_60_64 = 0)) %>% 
+###   mutate(across(c(1:5), as.integer))
+### 
+### df[,1:6] <- df[,1:6] %>% 
+###   mutate_if(is.character, ~replace(., is.na(.), 0)) %>% 
+###   mutate_if(is.character, as.integer)
+### 
+### df$dosed_55_59 <- gsub("NA", "0", df$dosed_55_59)
+### df$dosed_60_64 <- gsub("NA", "0", df$dosed_60_64)
 
 ##%######################################################%##
 #                                                          #
