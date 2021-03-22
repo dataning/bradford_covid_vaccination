@@ -31,7 +31,7 @@ df_list <- map(files_to_read_new, function(x){
 df_list
 
 # Name the dataframes on the list
-names(df_list) = gsub("COVID-19-weekly-announced-vaccinations-", "", basename(files_to_read_new))
+names(df_list) = sub("COVID-19-weekly-announced-vaccinations-", "", basename(files_to_read_new))
 
 # Cleaning all the dataframes on the list
 df_list <- df_list %>% 
@@ -48,6 +48,7 @@ df_list <- df_list %>%
   map(~rename(.x, one_dose = number_of_people_vaccinated_with_at_least_1_dose, 
               msoa_names = msoa_name))
 
+df_list
 ### map(~mutate(.x, x1 = as.integer(x1))) - convert column type
 ### map(~arrange(.x, x1)) - sort by column 
 ### df <- map_df(files_to_read_new, function(x){  
@@ -83,8 +84,8 @@ df_list <- Map(cbind, df_list, souce = names(df_list))
 df <- rbindlist(df_list, fill=TRUE)
 View(df)
 glimpse(df)
+colnames(df)
 
-# Clean column names
 colnames(df) <- sub("x", "dosed_", colnames(df))
 df <- df %>%  select(sort(names(.))) 
 saveRDS(df, "data/vacc_msoa.rds")
