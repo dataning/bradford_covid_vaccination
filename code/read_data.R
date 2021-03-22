@@ -33,10 +33,6 @@ df_list
 # Name the dataframes on the list
 names(df_list) = gsub("COVID-19-weekly-announced-vaccinations-", "", basename(files_to_read_new))
 
-df_list <- list(mtcars, iris, mtcars)
-names(df_list) = c("mtcars1", "iris1", "mtcars2")
-df_list
-
 # Cleaning all the dataframes on the list
 df_list <- df_list %>% 
   map(slice, -c(1:9, 12:13)) %>% 
