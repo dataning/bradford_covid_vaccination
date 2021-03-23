@@ -133,10 +133,48 @@ df <- readRDS("data/vacc_msoa.rds")
 # Fix the location
 source <- "/Users/goal/Downloads/temp_data/msoa_population_weight_2019.xlsx"
 
+source <- "data/COVID-19-weekly-announced-vaccinations-18-February-2021-1.xlsx"
+
 # Find all the sheet names
 readxl::excel_sheets(source)
 
-df_excel <- readxl::read_excel(source, "Mid-2019 Persons") %>% 
+df_excel <- readxl::read_excel(source, "Population estimates") %>%
+  slice(-c(1:9, 12:13)) %>% 
+  rowid_to_column() %>% 
+  mutate(rowid = sub("2", "1", rowid))
+
+df_excel[1:2,] %>%
+  summarise(across(everything(), ~ paste(., collapse = ', '))) %>% 
+  mutate(across(everything(), ~ gsub("NA,|, NA|1,", "", .))) %>%
+  row_to_names(row_number = 1) %>% 
+  clean_names() %>% 
+  View()
+
+dput(df_excel[1:2,] %>% janitor::clean_names())
+
+df_excel[1:2,] %>%
+  summarise_all(funs(paste(., collapse = ', '))) %>% 
+  mutate_all(funs(gsub(".*,", "", .))) %>% 
+  View
+
+
+  
+df_excel[1:2,]
+  
+df_excel[1:2,] %>%
+  summarise_all(na.omit)
+  janitor::row_to_names(row_number = 1) %>% 
+  janitor::clean_names() %>% 
+  ungroup() %>% 
+  select(-x1) %>% 
+  slice(-1) %>% 
+  rename(one_dose = number_of_people_vaccinated_with_at_least_1_dose,
+         msoa_names = msoa_name) 
+
+
+View(df_excel)
+
+df_excel <- readxl::read_excel(source, "Population estimates") %>% 
   janitor::clean_names() %>% 
   slice(-c(1:3)) %>% 
   janitor::row_to_names(row_number = 1) 
